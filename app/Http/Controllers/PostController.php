@@ -6,6 +6,11 @@ use Illuminate\Http\Request;
 
 use App\Models\Post;
 
+use App\Models\User;
+
+use Illuminate\Support\Facades\Auth; // <--- Add this!
+
+
 class PostController extends Controller
 {
     // This is a test controller for demonstration purposes.
@@ -19,13 +24,6 @@ class PostController extends Controller
 
         $postsfromDB = Post::all();
 
-        // @dd($postsfromDB);
-
-        // $all_posts = [
-        //     ['id' => 1, 'title' => 'First Post', 'content' => 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptas, doloremque.','description' => 'This is the first post.', 'created_at' => '2023-01-01 10:00:00'],
-        //     ['id' => 2, 'title' => 'Second Post', 'content' => 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptas, doloremque.', 'description' => 'This is the second post.', 'created_at' => '2023-01-02 11:00:00'],
-        //     ['id' => 3, 'title' => 'Third Post', 'content' => 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptas, doloremque.', 'description' => 'This is the third post.', 'created_at' => '2023-01-03 12:00:00'],
-        // ];
          return  view('posts.post', ['posts' => $postsfromDB]);
     }
 
@@ -46,43 +44,24 @@ class PostController extends Controller
     }
 
 
-    public function create() {
-         return view('posts.create');
-    }
+     public function create() {
+        return view('posts.create');
+     }
 
-    public function store(Request $request) {
-        // Validate the incoming request data
-     /*   $validatedData = $request->validate([
+     public function store(Request $request) {
+        $validatedData = $request->validate([
             'title' => 'required|max:255',
             'content' => 'required',
-        ]);*/
+            'description' => 'required',
+        ]);
 
-        // simple way to insert new record in DB
-       /*
-        $post = new Post;
-         $post->title = $request->title;
-         $post->description = $request->description;
-         $post->content = $request->content;
+        // Now this will NOT be null because of the Session!
+        $validatedData['user_id'] = Auth::id();
 
-         $post->save();
+        Post::create($validatedData);
 
-        */
-         // another way to insert and avoid Mass Asigment
-
-         Post::create([
-            'title' => $request->title,
-            'description' => $request->description,
-            'content' => $request->content,
-         ]);
-
-
-        // $data = $validatedData;
-
-        // Here you would typically save the validated data to the database
-        // For demonstration, we'll just return a success message
-
-         return redirect()->route('posts.create')->with('success', 'Post created successfully!');
-    }
+        return redirect()->route('posts.create')->with('success', 'Post created!');
+     }
 
      public function edit(Post $post) {
 
@@ -93,7 +72,7 @@ class PostController extends Controller
        //  return redirect()->route('posts.update', ['post' => $post])->with('success', 'Post updated successfully!');
     }
 
-    public function update($post){
+    public function update(Post $post){
         $title = request()->title;
         $content = request()->content;
         $description = request()->description;
@@ -114,4 +93,25 @@ class PostController extends Controller
             Post::destroy($id);
             // return redirect()->route('posts.post')->with('success', 'Post deleted successfully!');
     }
+
+    public function search(Request $request)
+        {
+            $searchTerm = $request->input('query');
+
+            // Only search if there is actually a query provided
+            $searchResults = Post::query()
+                ->when($searchTerm, function ($query, $searchTerm) {
+                    return $query->where(function ($q) use ($searchTerm) {
+                        $q->where('title', 'LIKE', '%' . $searchTerm . '%')
+                        ->orWhere('content', 'LIKE', '%' . $searchTerm . '%')
+                        ->orWhere('description', 'LIKE', '%' . $searchTerm . '%');
+                    });
+                })
+                ->get();
+
+            return view('posts.search_result', [
+                'posts' => $searchResults,
+                'query' => $searchTerm
+            ]);
+        }
 }

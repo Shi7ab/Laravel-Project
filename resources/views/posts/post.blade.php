@@ -1,10 +1,14 @@
 @extends('layout.master')
 @section('content')
-    <div class="btn btn-success m-3" data-bs-target="#createPostModal">
-          <a href="{{ route('posts.create') }}" class="btn btn-success">Create Post</a>
-        </div>
-    <div class="text-center d-flex justify-content-center align-items-center" style="height: 60vh;">
+ 
+    <h1 class="text-center">All Posts</h1>
 
+        <form action="{{ route('posts.search') }}" method="GET" class="d-flex justify-content-end mb-3">
+            <!-- No @csrf needed for GET requests -->
+            <input type="text" name="query" class="form-control w-25 me-2" placeholder="Search posts..." value="{{ request('query') }}">
+            <button type="submit" class="btn btn-success">Search Posts</button>
+        </form>
+    <div class="text-center d-flex justify-content-center align-items-center" style="height: 60vh;">
 
    <table class="table">
     <thead>
@@ -40,6 +44,7 @@
 
     </tbody>
     </table>
+
     </div>
             <script>
                 document.getElementById("delete").addEventListener('click',()=>{
