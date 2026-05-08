@@ -67,6 +67,9 @@ class AuthController extends Controller
     public function showLoginForm() {
         return view('auth.login'); // Make sure you have this view created
      }
+    public function showRegistrationForm() {
+        return view('auth.register'); // Make sure you have this view created
+     }
 
     public function profile() {
         $user = Auth::user();

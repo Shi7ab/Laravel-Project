@@ -101,7 +101,8 @@ class PostController extends Controller
             // Only search if there is actually a query provided
             $searchResults = Post::query()
                 ->when($searchTerm, function ($query, $searchTerm) {
-                    return $query->where(function ($q) use ($searchTerm) {
+                    return $query->where(function ($q)
+                     use ($searchTerm) {
                         $q->where('title', 'LIKE', '%' . $searchTerm . '%')
                         ->orWhere('content', 'LIKE', '%' . $searchTerm . '%')
                         ->orWhere('description', 'LIKE', '%' . $searchTerm . '%');

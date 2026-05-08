@@ -8,10 +8,10 @@ use App\Http\Controllers\AuthController;
 
 Route::post('/login', [AuthController::class, 'login'])->name('login');
 Route::post('/register', [AuthController::class, 'register'])->name('register');
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth:sanctum');
 
 // This route to access the login UI
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('auth.login');
-// Route::get('/register', [AuthController::class, 'showRegistrationForm'])->name('auth.register');
+Route::get('/register', [AuthController::class, 'showRegistrationForm'])->name('auth.register');
 
 Route::get('/profile', [AuthController::class, 'profile'])->name('profile')->middleware('auth:sanctum');
