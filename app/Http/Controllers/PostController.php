@@ -9,6 +9,8 @@ use App\Models\Post;
 use App\Models\User;
 
 use Illuminate\Support\Facades\Auth; // <--- Add this!
+use Illuminate\Support\Facades\Session; // <--- Add this!
+use App\Http\Requests\Validation; // <--- Add this!
 
 
 class PostController extends Controller
@@ -22,7 +24,8 @@ class PostController extends Controller
 
     public function posts() {
 
-        $postsfromDB = Post::all();
+        // $postsfromDB = Post::all();
+        $postsfromDB = Post::latest()->paginate(5);
 
          return  view('posts.post', ['posts' => $postsfromDB]);
     }
@@ -48,13 +51,14 @@ class PostController extends Controller
         return view('posts.create');
      }
 
-     public function store(Request $request) {
-        $validatedData = $request->validate([
-            'title' => 'required|max:255',
-            'content' => 'required',
-            'description' => 'required',
-        ]);
+     public function store(Request $request, Validation $validation) {
+        // $validatedData = $request->validate([
+        //     'title' => 'required|max:255',
+        //     'content' => 'required',
+        //     'description' => 'required',
+        // ]);
 
+        $validatedData = $request->validate($validation::posts());
         // Now this will NOT be null because of the Session!
         $validatedData['user_id'] = Auth::id();
 
@@ -72,19 +76,12 @@ class PostController extends Controller
        //  return redirect()->route('posts.update', ['post' => $post])->with('success', 'Post updated successfully!');
     }
 
-    public function update(Post $post){
-        $title = request()->title;
-        $content = request()->content;
-        $description = request()->description;
+    public function update(Post $post, Validation $validation){
+        $validatedData = request()->validate($validation::posts());
 
-        $postidfromDB = Post::find($post);
-        $postidfromDB->update([
-           'title' => $title,
-           'content' => $content,
-           'description' => $description,
-        ]);
+        $post->update($validatedData);
 
-        return view('posts.show', ['post' => $postidfromDB]);
+        return redirect()->route('posts.show', ['post' => $post])->with('success', 'Post updated successfully!');
     }
 
     public function delete($id) {

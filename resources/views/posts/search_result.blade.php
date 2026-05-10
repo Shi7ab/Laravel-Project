@@ -1,7 +1,9 @@
 @extends('layout.master')
 @section('content')
-    <h1 class="text-center">Search Results</h1>
-    <div class="text-center d-flex justify-content-center align-items-center" style="height: 60vh;">
+
+<div class="container py-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
         @if ($posts->isEmpty())
             <p>No posts found.</p>
         @else

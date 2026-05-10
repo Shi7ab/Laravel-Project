@@ -16,7 +16,7 @@ Route::put('/posts/{post}', [PostController::class, 'update'])->name('posts.upda
 
 Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
 
-Route::delete('/posts/{post}',[PostController::class, 'delete'])->name('posts.delete');
+Route::delete('/posts/{post}', [PostController::class, 'delete'])->name('posts.delete');
 
 Route::get('/search_result', [PostController::class, 'search'])->name('posts.search');
 

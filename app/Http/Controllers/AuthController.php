@@ -6,17 +6,14 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Post;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\Validation;
 
 class AuthController extends Controller
 {
     //
-    public function register(Request $request) {
+    public function register(Request $request , Validation $validation) {
         // 1. Validate
-        $validatedData = $request->validate([
-            'name'     => 'string|required|max:80',
-            'email'    => 'email|string|required|unique:users', // Added unique check
-            'password' => 'string|confirmed|required|min:6',
-        ]);
+        $validatedData = $request->validate($validation::users());
 
         // 2. Create User (Hash the password!)
         $user = User::create([
@@ -32,17 +29,16 @@ class AuthController extends Controller
         ], 201);
     }
 
-    public function login(Request $request) {
-        $request->validate([
-            'email' => 'email|string|required',
-            'password' => 'string|required|min:6',
-        ]);
+    public function login(Request $request, Validation $validation) {
+        
+        $validatedData = $request->validate( Validation::login());
 
         // Auth::attempt handles finding the user and checking the password hash
-        if (!Auth::attempt($request->only('email', 'password'))) {
+        if (!Auth::attempt($validatedData)) {
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
 
+        
         // Auth::user() retrieves the authenticated user
         $user = Auth::user();
         $token = $user->createToken('auth_token')->plainTextToken;
@@ -54,8 +50,8 @@ class AuthController extends Controller
     }
 
     public function logout(){
-         Auth::logout();
-         if (Auth::logout()) {
+        if (session_status() == PHP_SESSION_ACTIVE) {
+             Auth::logout();
             $_SESSION['message'] = 'Logged out successfully';
             $_COOKIE['message'] = 'Logged out successfully';
          }

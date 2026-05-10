@@ -22,14 +22,32 @@
              <li class="nav-item">
             <a class="nav-link" href="/posts/create">Create Post</a>
                 </li>
- 
-            <a class="nav-link" href="/profile">{{ Auth::user()->name }}</a>
+
+            @if(Auth::check())
+                <li class="nav-item">
+                    <a class="nav-link" href="/profile">{{ Auth::user()->name }}</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                        Logout
+                    </a>
+                    <form id="logout-form" action="{{ route('logout') }}" method="GET" style="display: none;">
+                        @csrf
+                    </form>
+                </li>
+            @else
+                <li class="nav-item">
+                    <a class="nav-link" href="/login">Login</a>
+                </li>
+            @endif
         </ul>
 
         </div>
     </div>
     </nav>
+       <div class="container mt-4 d-block mx-auto w-75 bg-light p-4 rounded shadow">
         @yield('content')
+         </div>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
   </body>
 </html>
