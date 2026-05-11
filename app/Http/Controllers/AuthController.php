@@ -8,6 +8,9 @@ use App\Models\Post;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\Validation;
 
+use Illuminate\Support\Facades\Mail;
+use App\Mail\WelcomeMail;
+
 class AuthController extends Controller
 {
     //
@@ -22,6 +25,8 @@ class AuthController extends Controller
             'password' => bcrypt($validatedData['password']), // OR Hash::make()
         ]);
 
+        // Send welcome email
+        Mail::to($user->email)->send(new WelcomeMail());
         // 3. Return JSON response
         return response()->json([
             'message' => 'User created successfully',
@@ -30,7 +35,7 @@ class AuthController extends Controller
     }
 
     public function login(Request $request, Validation $validation) {
-        
+
         $validatedData = $request->validate( Validation::login());
 
         // Auth::attempt handles finding the user and checking the password hash
@@ -38,7 +43,7 @@ class AuthController extends Controller
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
 
-        
+
         // Auth::user() retrieves the authenticated user
         $user = Auth::user();
         $token = $user->createToken('auth_token')->plainTextToken;
