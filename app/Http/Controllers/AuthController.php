@@ -9,7 +9,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\Validation;
 
 use Illuminate\Support\Facades\Mail;
-use App\Mail\WelcomeMail;
+// use App\Mail\WelcomeMail;
+use App\Events\UserRegistered;
 
 class AuthController extends Controller
 {
@@ -26,7 +27,8 @@ class AuthController extends Controller
         ]);
 
         // Send welcome email
-        Mail::to($user->email)->send(new WelcomeMail());
+        // Mail::to($user->email)->send(new WelcomeMail());
+        UserRegistered::dispatch($user);
         // 3. Return JSON response
         return response()->json([
             'message' => 'User created successfully',
